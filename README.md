@@ -37,7 +37,6 @@ The following data (`graph/simple_graph.gr`) represents this simple graph with 9
 5 6
 5 8
 7 8
-
 ```
 
 ## How to Run the Program
