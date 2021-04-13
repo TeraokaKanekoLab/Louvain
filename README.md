@@ -8,6 +8,7 @@ Git repository for understanding modularity and [Louvain method](https://iopscie
 | 0.0 | April 12, 2021 | [7659810](https://github.com/TeraokaKanekoLab/Louvain/commit/7659810596ec8fe5948b348248d064a4819eda45) | first commit |
 | 0.1 | April 12, 2021 | [c59c3e7](https://github.com/TeraokaKanekoLab/Louvain/commit/c59c3e7970defa79c3a035842f22f6f6da8ec7e0) | Define Graph class |
 | 0.2 | April 12, 2021 | [3b1c2ba](https://github.com/TeraokaKanekoLab/Louvain/commit/3b1c2baafef4cdbb1f4f6123dea035d472898e85) | Modularity Computation |
+| 0.3 | April 13, 2021 | [4629e33](https://github.com/TeraokaKanekoLab/Louvain/commit/4629e3320bfe7ae768b0f3f61116ee307c5943b7) | community graph (weighted graph) class |
 
 ## Graph Data File Format
 The graph data files need to follow the rule below. `<endpoint n>` needs to be an int (node id)
