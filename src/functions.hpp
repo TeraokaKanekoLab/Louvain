@@ -1,4 +1,4 @@
-#include "graph.hpp"
+#include "community_graph.hpp"
 
 Graph read_graph(string filepath)
 {

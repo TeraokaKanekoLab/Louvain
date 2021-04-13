@@ -39,6 +39,15 @@ public:
         return neighbors[v];
     }
 
+    vector<int> get_vertices()
+    {
+        vector<int> vertices;
+        for (auto [v, nbrs] : neighbors) {
+            vertices.push_back(v);
+        }
+        return vertices;
+    }
+
     void print_graph()
     {
         for (auto [u, nbrs] : neighbors) {
