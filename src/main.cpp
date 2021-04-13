@@ -15,7 +15,7 @@ void test2(string filepath)
     CommunityGraph cg(graph);
     cg.louvain();
     cout << "modularity = " << cg.compute_modurality() << endl;
-    cg.print_communities();
+    // cg.print_communities();
 }
 void test1(string filepath)
 {
