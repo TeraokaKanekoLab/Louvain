@@ -17,7 +17,7 @@ private:
     typedef pair<int, int> edge;
 
     // community
-    unordered_map<int, unordered_set<int>> communities;
+    unordered_map<int, unordered_set<int>> nodes_in_community;
     unordered_map<int, unordered_set<int>> neighbors;
     unordered_map<int, int> inside_weights;
     unordered_map<int, int> attached_weights;
@@ -49,11 +49,13 @@ public:
         sum_weights = graph.get_num_edges();
     }
 
+    // ---------------------------------------------------
     // getters
+    // ---------------------------------------------------
     bool
     has_community(int c)
     {
-        return communities.find(c) != communities.end();
+        return nodes_in_community.find(c) != nodes_in_community.end();
     }
 
     bool has_vertex(int v)
@@ -91,7 +93,19 @@ public:
         return nbrs;
     }
 
+    vector<int> get_communities()
+    {
+        vector<int> communities;
+        for (auto [c, nodes] : nodes_in_community) {
+            communities.push_back(c);
+        }
+        return communities;
+    }
+
+    // ---------------------------------------------------
     // setters
+    // ---------------------------------------------------
+
     void add_community(int c)
     {
         if (has_community(c)) {
@@ -99,7 +113,7 @@ public:
             return;
         }
 
-        communities[c] = unordered_set<int>();
+        nodes_in_community[c] = unordered_set<int>();
         neighbors[c] = unordered_set<int>();
         inside_weights[c] = 0;
         attached_weights[c] = 0;
@@ -112,7 +126,7 @@ public:
             return;
         }
 
-        communities[c].insert(v);
+        nodes_in_community[c].insert(v);
         community_of_vertices[v] = c;
     }
 
@@ -131,7 +145,7 @@ public:
             return;
         }
 
-        communities[c].erase(v);
+        nodes_in_community[c].erase(v);
         community_of_vertices.erase(v);
     }
 
@@ -204,7 +218,7 @@ public:
             remove_edge(c, c);
 
         neighbors.erase(c);
-        communities.erase(c);
+        nodes_in_community.erase(c);
         inside_weights.erase(c);
         attached_weights.erase(c);
     }
@@ -222,8 +236,8 @@ public:
         }
 
         // merge s to t
-        for (auto v : communities[s]) {
-            communities[t].insert(v);
+        for (auto v : nodes_in_community[s]) {
+            nodes_in_community[t].insert(v);
             community_of_vertices[v] = t;
         }
         for (auto nbr : neighbors[s]) {
@@ -245,7 +259,6 @@ public:
 
     double compute_modurality()
     {
-        cout << "sum_weights = " << sum_weights << endl;
         double modularity = 0;
         for (auto [c, inside_weight] : inside_weights) {
             modularity += (double)inside_weight / (2 * sum_weights);
@@ -256,13 +269,63 @@ public:
     }
 
     // ---------------------------------------------------
+    // Louvain
+    // ---------------------------------------------------
+
+    double louvain()
+    {
+
+        double prev = compute_modurality();
+        // for all community
+        while (true) {
+            // randomize the order of vertices
+            vector<int> communities = get_communities();
+            random_device rd;
+            mt19937 g(rd());
+            shuffle(communities.begin(), communities.end(), g);
+
+            double res = 0;
+            for (int i = 0; i < communities.size(); ++i) {
+                int best_community = i;
+                double best_increase = 0;
+                for (int j = 0; j < communities.size(); ++j) {
+                    if (i == j)
+                        continue;
+                    if (!has_community(communities[j]))
+                        continue;
+                    double sigma_in = inside_weights[j];
+                    double sigma_tot = attached_weights[j];
+                    double ki = attached_weights[i];
+                    double ki_in = edge_weights[edge(i, j)];
+                    double delta_q = (sigma_in + 2 * ki_in) / (2 * sum_weights) - (sigma_tot + ki) * (sigma_tot + ki) / (4 * sum_weights * sum_weights);
+                    delta_q -= sigma_in / (2 * sum_weights) - sigma_tot * sigma_tot / (4 * sum_weights * sum_weights) - ki * ki / (4 * sum_weights * sum_weights);
+                    // double delta_q2 = ki_in / sum_weights - sigma_tot * ki / (2 * sum_weights * sum_weights);
+                    // cout << "delta_q = " << delta_q << ", delta_q2 = " << delta_q2 << endl;
+                    if (delta_q > best_increase) {
+                        best_increase = delta_q;
+                        best_community = j;
+                    }
+                }
+                if (best_increase <= 0)
+                    continue;
+                move_community_into_another(i, best_community);
+                res = compute_modurality();
+            }
+            if (prev == res)
+                break;
+            prev = res;
+        }
+        return prev;
+    }
+
+    // ---------------------------------------------------
     // debug
     // ---------------------------------------------------
 
     void print_communities()
     {
         cout << "communities" << endl;
-        for (auto [community, vertices] : communities) {
+        for (auto [community, vertices] : nodes_in_community) {
             cout << community << ":";
             for (auto vertex : vertices) {
                 cout << " " << vertex;
