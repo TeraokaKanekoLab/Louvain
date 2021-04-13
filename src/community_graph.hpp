@@ -31,13 +31,9 @@ private:
     int sum_weights;
 
 public:
-    CommunityGraph()
+    CommunityGraph(Graph graph)
     {
         sum_weights = 0;
-    }
-
-    void initialize_with_graph(Graph graph)
-    {
         vector<int> vertices = graph.get_vertices();
         for (auto v : vertices) {
             add_community(v);
@@ -49,6 +45,8 @@ public:
                     add_weight_to_edge(v, nbr, 1);
             }
         }
+
+        sum_weights = graph.get_num_edges();
     }
 
     // getters
@@ -139,7 +137,7 @@ public:
 
     void add_weight_to_edge(int c1, int c2, int weight)
     {
-        if (!has_community(c1) or !has_community(c2)) {
+        if (!has_community(c1) || !has_community(c2)) {
             cout << "community not exists" << endl;
             return;
         }
@@ -147,7 +145,7 @@ public:
         edge e1 = edge(c1, c2);
         edge e2 = edge(c2, c1);
 
-        if (!has_edge(e1) or !has_edge(e2)) {
+        if (!has_edge(e1) || !has_edge(e2)) {
             edge_weights[e1] = 0;
             edge_weights[e2] = 0;
             neighbors[c1].insert(c2);
@@ -158,17 +156,17 @@ public:
         edge_weights[e2] += weight;
         attached_weights[c1] += weight;
         attached_weights[c2] += weight;
+
         if (c1 == c2) {
             edge_weights[e1] -= weight;
-            inside_weights[c1] += 2 * weight;
+            attached_weights[c1] -= weight;
+            inside_weights[c1] += weight;
         }
-
-        sum_weights += weight;
     }
 
     void remove_edge(int c1, int c2)
     {
-        if (!has_community(c1) or !has_community(c2)) {
+        if (!has_community(c1) || !has_community(c2)) {
             cout << "community not exists" << endl;
             return;
         }
@@ -176,7 +174,7 @@ public:
         edge e1 = edge(c1, c2);
         edge e2 = edge(c2, c1);
 
-        if (!has_edge(e1) or !has_edge(e2)) {
+        if (!has_edge(e1) || !has_edge(e2)) {
             cout << "edge not exists" << endl;
             return;
         }
@@ -202,9 +200,8 @@ public:
         }
         for (auto neighbor : get_neighbors(c))
             remove_edge(c, neighbor);
-
-        for (auto v : communities[c])
-            community_of_vertices.erase(v);
+        if (has_edge(edge(c, c)))
+            remove_edge(c, c);
 
         neighbors.erase(c);
         communities.erase(c);
@@ -212,8 +209,43 @@ public:
         attached_weights.erase(c);
     }
 
+    void move_community_into_another(int s, int t)
+    {
+        if (!has_community(s) || !has_community(t)) {
+            cout << "community not exists" << endl;
+            return;
+        }
+
+        if (s == t) {
+            cout << "communities must not be same" << endl;
+            return;
+        }
+
+        // merge s to t
+        for (auto v : communities[s]) {
+            communities[t].insert(v);
+            community_of_vertices[v] = t;
+        }
+        for (auto nbr : neighbors[s]) {
+            if (nbr == s)
+                continue;
+            if (nbr == t) {
+                add_weight_to_edge(t, t, edge_weights[edge(s, t)]);
+            }
+            add_weight_to_edge(t, nbr, edge_weights[edge(s, nbr)]);
+        }
+        add_weight_to_edge(t, t, edge_weights[edge(s, s)]);
+
+        remove_community(s);
+    }
+
+    // ---------------------------------------------------
+    // computation
+    // ---------------------------------------------------
+
     double compute_modurality()
     {
+        cout << "sum_weights = " << sum_weights << endl;
         double modularity = 0;
         for (auto [c, inside_weight] : inside_weights) {
             modularity += (double)inside_weight / (2 * sum_weights);

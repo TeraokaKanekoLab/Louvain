@@ -32,6 +32,11 @@ public:
         return neighbors[v].size();
     }
 
+    int get_num_edges()
+    {
+        return num_edges;
+    }
+
     // We assume v is a valid node
     // Otherwise an exception will be triggered
     unordered_set<int> get_neighbors(int v)
