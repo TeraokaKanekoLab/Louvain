@@ -3,19 +3,20 @@ import community
 import sys
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
+from collections import defaultdict
 
 
 def louvain(graph):
     partition = community.best_partition(graph)
-    print(partition)
-    # draw the graph
-    pos = nx.spring_layout(graph)
-    # color the nodes according to their partition
-    cmap = cm.get_cmap('viridis', max(partition.values()) + 1)
-    nx.draw_networkx_nodes(graph, pos, partition.keys(), node_size=40,
-                           cmap=cmap, node_color=list(partition.values()))
-    nx.draw_networkx_edges(graph, pos, alpha=0.5)
-    plt.show()
+    # print(partition)
+    communities = defaultdict(set)
+    for nd in partition:
+        c = partition[nd]
+        communities[c].add(nd)
+    comms = []
+    for c in communities:
+        comms.append(communities[c])
+    print(nx.algorithms.community.quality.modularity(graph, comms))
 
 
 def read_graph():
