@@ -7,11 +7,7 @@ void test4(string filepath);
 
 int main(int argc, char* argv[])
 {
-    auto start = chrono::steady_clock::now();
     test4(argv[1]);
-    auto end = chrono::steady_clock::now();
-    auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
-    cout << (double)duration.count() / 1000000 << " s" << endl;
     return 0;
 }
 
@@ -19,9 +15,13 @@ void test4(string filepath)
 {
     Graph graph = read_graph(filepath);
     CommunityGraph cg(graph);
+    auto start = chrono::steady_clock::now();
     cg.louvain();
+    auto end = chrono::steady_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
     cout << cg.compute_modurality() << endl;
     // cg.print_communities();
+    cout << (double)duration.count() / 1000000 << " s" << endl;
 }
 
 void test3(string filepath)

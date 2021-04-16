@@ -291,7 +291,10 @@ public:
 
     double louvain()
     {
-
+        auto start = chrono::steady_clock::now();
+        auto end = chrono::steady_clock::now();
+        auto for_j = chrono::duration_cast<chrono::microseconds>(end - end);
+        auto move = chrono::duration_cast<chrono::microseconds>(end - end);
         double prev = compute_modurality();
         // for all community
         while (true) {
@@ -306,6 +309,7 @@ public:
                 int from = communities[i];
                 int best_community = from;
                 double best_increase = 0;
+                start = chrono::steady_clock::now();
                 for (int j = 0; j < communities.size(); ++j) {
                     int to = communities[j];
                     if (from == to)
@@ -318,15 +322,22 @@ public:
                         best_community = to;
                     }
                 }
+                end = chrono::steady_clock::now();
+                for_j += chrono::duration_cast<chrono::microseconds>(end - start);
                 if (best_increase <= 0)
                     continue;
+                start = chrono::steady_clock::now();
                 move_community_into_another(from, best_community);
+                end = chrono::steady_clock::now();
+                move += chrono::duration_cast<chrono::microseconds>(end - start);
                 res = compute_modurality();
             }
             if (prev == res)
                 break;
             prev = res;
         }
+        cout << "for_j: " << (double)for_j.count() / 1000000 << "s" << endl;
+        cout << "move: " << (double)move.count() / 1000000 << "s" << endl;
         return prev;
     }
 
