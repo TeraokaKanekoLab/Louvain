@@ -1,4 +1,5 @@
 #include "graph.hpp"
+#define MIN 0.0000001
 
 // A hash function used to hash a pair of any kind
 struct hash_pair {
@@ -293,7 +294,6 @@ public:
     {
         auto start = chrono::steady_clock::now();
         auto end = chrono::steady_clock::now();
-        auto for_j = chrono::duration_cast<chrono::microseconds>(end - end);
         auto move = chrono::duration_cast<chrono::microseconds>(end - end);
         double prev = compute_modurality();
         // for all community
@@ -305,13 +305,10 @@ public:
             shuffle(communities.begin(), communities.end(), g);
 
             double res = compute_modurality();
-            for (int i = 0; i < communities.size(); ++i) {
-                int from = communities[i];
+            for (auto from : communities) {
                 int best_community = from;
                 double best_increase = 0;
-                start = chrono::steady_clock::now();
-                for (int j = 0; j < communities.size(); ++j) {
-                    int to = communities[j];
+                for (auto to : neighbors[from]) {
                     if (from == to)
                         continue;
                     if (!has_community(to))
@@ -322,21 +319,17 @@ public:
                         best_community = to;
                     }
                 }
-                end = chrono::steady_clock::now();
-                for_j += chrono::duration_cast<chrono::microseconds>(end - start);
                 if (best_increase <= 0)
                     continue;
                 start = chrono::steady_clock::now();
                 move_community_into_another(from, best_community);
                 end = chrono::steady_clock::now();
                 move += chrono::duration_cast<chrono::microseconds>(end - start);
-                res = compute_modurality();
             }
-            if (prev == res)
+            if (res - prev <= MIN)
                 break;
             prev = res;
         }
-        cout << "for_j: " << (double)for_j.count() / 1000000 << "s" << endl;
         cout << "move: " << (double)move.count() / 1000000 << "s" << endl;
         return prev;
     }
