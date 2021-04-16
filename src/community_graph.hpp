@@ -1,17 +1,6 @@
 #include "graph.hpp"
 #define MIN 0.0000001
 
-// A hash function used to hash a pair of any kind
-struct hash_pair {
-    template <class T1, class T2>
-    size_t operator()(const pair<T1, T2>& p) const
-    {
-        auto hash1 = hash<T1> {}(p.first);
-        auto hash2 = hash<T2> {}(p.second);
-        return hash1 ^ hash2;
-    }
-};
-
 class CommunityGraph {
 private:
     // typedef
@@ -19,12 +8,9 @@ private:
 
     // community
     unordered_map<int, unordered_set<int>> nodes_in_communities;
-    unordered_map<int, unordered_set<int>> neighbors;
+    unordered_map<int, unordered_map<int, int>> neighbors;
     unordered_map<int, int> inside_weights;
     unordered_map<int, int> attached_weights;
-
-    // edges
-    unordered_map<edge, int, hash_pair> edge_weights;
 
     // vertices
     unordered_map<int, int> community_of_vertices;
@@ -68,9 +54,11 @@ public:
         return community_of_vertices.find(v) != community_of_vertices.end();
     }
 
-    bool has_edge(edge e)
+    bool has_edge(int c1, int c2)
     {
-        return edge_weights.find(e) != edge_weights.end();
+        if (!has_community(c1) or !has_community(c2))
+            return false;
+        return neighbors[c1].find(c2) != neighbors[c1].end();
     }
 
     bool has_vertex_in_community(int c, int v)
@@ -85,15 +73,15 @@ public:
 
     int get_edge_weight(int c1, int c2)
     {
-        if (!has_edge(edge(c1, c2)))
+        if (!has_edge(c1, c2))
             return -1;
-        return edge_weights[edge(c1, c2)];
+        return neighbors[c1][c2];
     }
 
     vector<int> get_neighbors(int c)
     {
         vector<int> nbrs;
-        for (auto nbr : neighbors[c])
+        for (auto [nbr, weight] : neighbors[c])
             nbrs.push_back(nbr);
         return nbrs;
     }
@@ -124,7 +112,7 @@ public:
         }
 
         nodes_in_communities[c] = unordered_set<int>();
-        neighbors[c] = unordered_set<int>();
+        neighbors[c] = unordered_map<int, int>();
         inside_weights[c] = 0;
         attached_weights[c] = 0;
     }
@@ -166,23 +154,18 @@ public:
             return;
         }
 
-        edge e1 = edge(c1, c2);
-        edge e2 = edge(c2, c1);
-
-        if (!has_edge(e1) || !has_edge(e2)) {
-            edge_weights[e1] = 0;
-            edge_weights[e2] = 0;
-            neighbors[c1].insert(c2);
-            neighbors[c2].insert(c1);
+        if (!has_edge(c1, c2)) {
+            neighbors[c1][c2] = 0;
+            neighbors[c2][c1] = 0;
         }
 
-        edge_weights[e1] += weight;
-        edge_weights[e2] += weight;
+        neighbors[c1][c2] += weight;
+        neighbors[c2][c1] += weight;
         attached_weights[c1] += weight;
         attached_weights[c2] += weight;
 
         if (c1 == c2) {
-            edge_weights[e1] -= weight;
+            neighbors[c1][c2] -= weight;
             attached_weights[c1] -= weight;
             inside_weights[c1] += weight;
         }
@@ -195,23 +178,17 @@ public:
             return;
         }
 
-        edge e1 = edge(c1, c2);
-        edge e2 = edge(c2, c1);
-
-        if (!has_edge(e1) || !has_edge(e2)) {
+        if (!has_edge(c1, c2)) {
             cout << "edge not exists" << endl;
             return;
         }
-        attached_weights[c1] -= edge_weights[e1];
-        attached_weights[c2] -= edge_weights[e1];
+        attached_weights[c1] -= neighbors[c1][c2];
+        attached_weights[c2] -= neighbors[c1][c2];
         if (c1 == c2) {
             inside_weights.erase(c1);
-            edge_weights.erase(e1);
             neighbors[c1].erase(c2);
             return;
         }
-        edge_weights.erase(e1);
-        edge_weights.erase(e2);
         neighbors[c1].erase(c2);
         neighbors[c2].erase(c1);
     }
@@ -224,7 +201,7 @@ public:
         }
         for (auto neighbor : get_neighbors(c))
             remove_edge(c, neighbor);
-        if (has_edge(edge(c, c)))
+        if (has_edge(c, c))
             remove_edge(c, c);
 
         neighbors.erase(c);
@@ -252,15 +229,15 @@ public:
         }
 
         auto start = chrono::steady_clock::now();
-        for (auto nbr : neighbors[s]) {
+        for (auto [nbr, weight] : neighbors[s]) {
             if (nbr == s)
                 continue;
             if (nbr == t) {
-                add_weight_to_edge(t, t, edge_weights[edge(s, t)]);
+                add_weight_to_edge(t, t, weight);
             }
-            add_weight_to_edge(t, nbr, edge_weights[edge(s, nbr)]);
+            add_weight_to_edge(t, nbr, weight);
         }
-        add_weight_to_edge(t, t, edge_weights[edge(s, s)]);
+        add_weight_to_edge(t, t, neighbors[s][s]);
         auto end = chrono::steady_clock::now();
         duration += chrono::duration_cast<chrono::microseconds>(end - start);
 
@@ -291,7 +268,7 @@ public:
         double sigma_in = inside_weights[to];
         double sigma_tot = attached_weights[to];
         double ki = attached_weights[from];
-        double ki_in = edge_weights[edge(from, to)];
+        double ki_in = neighbors[from][to];
         double m = sum_weights;
         double delta_q = (sigma_in + 2 * ki_in) / (2 * m) - (sigma_tot + ki) * (sigma_tot + ki) / (4 * m * m);
         delta_q -= sigma_in / (2 * m) - sigma_tot * sigma_tot / (4 * m * m) - ki * ki / (4 * m * m);
@@ -316,7 +293,7 @@ public:
             for (auto from : communities) {
                 int best_community = from;
                 double best_increase = 0;
-                for (auto to : neighbors[from]) {
+                for (auto [to, weight] : neighbors[from]) {
                     if (from == to)
                         continue;
                     if (!has_community(to))
@@ -329,17 +306,12 @@ public:
                 }
                 if (best_increase <= 0)
                     continue;
-                start = chrono::steady_clock::now();
                 move_community_into_another(from, best_community);
-                end = chrono::steady_clock::now();
-                move += chrono::duration_cast<chrono::microseconds>(end - start);
             }
-            if (res - prev <= 0)
+            if (res - prev <= MIN)
                 break;
             prev = res;
         }
-        cout << "move: " << (double)move.count() / 1000000 << "s" << endl;
-        cout << "duration: " << (double)duration.count() / 1000000 << "s" << endl;
         return prev;
     }
 
@@ -370,9 +342,9 @@ public:
     void print_edges()
     {
         cout << "edges" << endl;
-        for (auto [edge, weight] : edge_weights) {
-            cout << "(" << edge.first << ", " << edge.second << "): " << weight << endl;
-        }
+        for (auto [c1, nbrs] : neighbors)
+            for (auto [c2, weight] : nbrs)
+                cout << "(" << c1 << ", " << c2 << "): " << weight << endl;
     }
 
     void print_neighbors()
@@ -380,7 +352,7 @@ public:
         cout << "neighbors" << endl;
         for (auto [v, nbrs] : neighbors) {
             cout << v << ":";
-            for (auto nbr : nbrs) {
+            for (auto [nbr, weight] : nbrs) {
                 cout << " " << nbr;
             }
             cout << endl;

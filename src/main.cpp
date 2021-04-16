@@ -69,6 +69,7 @@ void test2(string filepath)
             cout << "best modularity updated: " << best_val << endl;
         }
     }
+    cout << best_val << endl;
     print_nodes_in_community(nodes_in_communities);
 }
 
