@@ -7,7 +7,11 @@ void test4(string filepath);
 
 int main(int argc, char* argv[])
 {
+    auto start = chrono::steady_clock::now();
     test4(argv[1]);
+    auto end = chrono::steady_clock::now();
+    auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
+    cout << (double)duration.count() / 1000000 << " s" << endl;
     return 0;
 }
 

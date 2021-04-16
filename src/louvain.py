@@ -4,6 +4,7 @@ import sys
 import matplotlib.cm as cm
 import matplotlib.pyplot as plt
 from collections import defaultdict
+import time
 
 
 def louvain(graph):
@@ -41,4 +42,7 @@ def read_graph():
 
 if __name__ == "__main__":
     graph = read_graph()
+    start = time.time()
     louvain(graph)
+    end = time.time()
+    print(end - start, "s")
