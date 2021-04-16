@@ -31,6 +31,9 @@ private:
 
     int sum_weights;
 
+    // debug
+    std::__1::chrono::microseconds duration;
+
 public:
     CommunityGraph(Graph graph)
     {
@@ -48,6 +51,7 @@ public:
         }
 
         sum_weights = graph.get_num_edges();
+        duration = (std::__1::chrono::microseconds)0;
     }
 
     // ---------------------------------------------------
@@ -158,7 +162,7 @@ public:
     void add_weight_to_edge(int c1, int c2, int weight)
     {
         if (!has_community(c1) || !has_community(c2)) {
-            cout << "community not exists" << endl;
+            cout << "community not exists yeah" << endl;
             return;
         }
 
@@ -246,6 +250,8 @@ public:
             nodes_in_communities[t].insert(v);
             community_of_vertices[v] = t;
         }
+
+        auto start = chrono::steady_clock::now();
         for (auto nbr : neighbors[s]) {
             if (nbr == s)
                 continue;
@@ -255,6 +261,8 @@ public:
             add_weight_to_edge(t, nbr, edge_weights[edge(s, nbr)]);
         }
         add_weight_to_edge(t, t, edge_weights[edge(s, s)]);
+        auto end = chrono::steady_clock::now();
+        duration += chrono::duration_cast<chrono::microseconds>(end - start);
 
         remove_community(s);
     }
@@ -326,11 +334,12 @@ public:
                 end = chrono::steady_clock::now();
                 move += chrono::duration_cast<chrono::microseconds>(end - start);
             }
-            if (res - prev <= MIN)
+            if (res - prev <= 0)
                 break;
             prev = res;
         }
         cout << "move: " << (double)move.count() / 1000000 << "s" << endl;
+        cout << "duration: " << (double)duration.count() / 1000000 << "s" << endl;
         return prev;
     }
 
