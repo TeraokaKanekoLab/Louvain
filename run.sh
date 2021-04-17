@@ -1,9 +1,9 @@
 modularity() {
-    echo "g++ src/main.cpp -o ./main --std=c++17"
-    g++ src/main.cpp -o ./main --std=c++17
+    echo "g++ src/main.cpp -o ./test --std=c++17"
+    g++ src/test.cpp -o ./test --std=c++17
     echo "./main $1 $2"
-    ./main $1 $2
-    rm ./main
+    ./test $1 $2
+    rm ./test
 }
 
 case $1 in
