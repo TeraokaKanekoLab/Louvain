@@ -12,6 +12,7 @@ Git repository for understanding modularity and [Louvain method](https://iopscie
 | 0.4 | April 13, 2021 | [812d3f1](https://github.com/TeraokaKanekoLab/Louvain/commit/812d3f1f0c908d5c9fc5686db1f83a6117f41a69) | Louvain method Completed? |
 | 0.5 | April 15, 2021 | [cebe22d](https://github.com/TeraokaKanekoLab/Louvain/commit/cebe22dbe515b2ce28a9142a0d6dd41f1221fc97) | Louvain method Completed? |
 | 0.6 | April 16, 2021 | [ee479cc](https://github.com/TeraokaKanekoLab/Louvain/commit/ee479cc5f1aba0528401c5517992b2f1e59fd3ff) | computation time drastically reduced |
+| 0.7 | April 17, 2021 | [f4df9ff](https://github.com/TeraokaKanekoLab/Louvain/commit/f4df9ff5735e90f6b6a69a85916a6ff2b22a7beb) | Copying other's implementation |
 
 ## Graph Data File Format
 The graph data files need to follow the rule below. `<endpoint n>` needs to be an int (node id)
