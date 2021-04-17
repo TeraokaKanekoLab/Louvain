@@ -171,26 +171,19 @@ public:
         }
     }
 
-    void remove_edge(int c1, int c2)
+    void remove_edge(int from, int to)
     {
-        if (!has_community(c1) || !has_community(c2)) {
+        if (!has_community(from) || !has_community(to)) {
             cout << "community not exists" << endl;
             return;
         }
 
-        if (!has_edge(c1, c2)) {
+        if (!has_edge(from, to)) {
             cout << "edge not exists" << endl;
             return;
         }
-        attached_weights[c1] -= neighbors[c1][c2];
-        attached_weights[c2] -= neighbors[c1][c2];
-        if (c1 == c2) {
-            inside_weights.erase(c1);
-            neighbors[c1].erase(c2);
-            return;
-        }
-        neighbors[c1].erase(c2);
-        neighbors[c2].erase(c1);
+        attached_weights[to] -= neighbors[from][to];
+        neighbors[to].erase(from);
     }
 
     void remove_community(int c)
@@ -201,13 +194,14 @@ public:
         }
         for (auto neighbor : get_neighbors(c))
             remove_edge(c, neighbor);
-        if (has_edge(c, c))
-            remove_edge(c, c);
 
+        auto start = chrono::steady_clock::now();
         neighbors.erase(c);
         nodes_in_communities.erase(c);
         inside_weights.erase(c);
         attached_weights.erase(c);
+        auto end = chrono::steady_clock::now();
+        duration += chrono::duration_cast<chrono::microseconds>(end - start);
     }
 
     void move_community_into_another(int s, int t)
@@ -227,8 +221,6 @@ public:
             nodes_in_communities[t].insert(v);
             community_of_vertices[v] = t;
         }
-
-        auto start = chrono::steady_clock::now();
         for (auto [nbr, weight] : neighbors[s]) {
             if (nbr == s)
                 continue;
@@ -238,8 +230,6 @@ public:
             add_weight_to_edge(t, nbr, weight);
         }
         add_weight_to_edge(t, t, neighbors[s][s]);
-        auto end = chrono::steady_clock::now();
-        duration += chrono::duration_cast<chrono::microseconds>(end - start);
 
         remove_community(s);
     }
@@ -306,12 +296,17 @@ public:
                 }
                 if (best_increase <= 0)
                     continue;
+                start = chrono::steady_clock::now();
                 move_community_into_another(from, best_community);
+                end = chrono::steady_clock::now();
+                move += chrono::duration_cast<chrono::microseconds>(end - start);
             }
             if (res - prev <= MIN)
                 break;
             prev = res;
         }
+        cout << "move: " << (double)move.count() / 1000000 << "s" << endl;
+        cout << "duration: " << (double)duration.count() / 1000000 << "s" << endl;
         return prev;
     }
 
