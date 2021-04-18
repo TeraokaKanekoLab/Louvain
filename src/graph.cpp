@@ -7,10 +7,13 @@ Graph::Graph()
     total_weight = 0;
 }
 
-Graph::Graph(string filepath)
+Graph::Graph(string filepath, int type)
 {
+    nb_nodes = 0;
+    nb_links = 0;
     vector<vector<pair<int, float>>> all_links = read_file(filepath);
     renumber(all_links);
+    nb_nodes = all_links.size();
 
     // cumulative degree sequence
     unsigned long cumulative = 0;
@@ -20,11 +23,12 @@ Graph::Graph(string filepath)
     }
 
     // links
-    for (int i = 0; i < all_links.size(); ++i) {
-        for (int j = 0; j < all_links[i].size(); ++j) {
+    for (int i = 0; i < all_links.size(); ++i)
+        for (int j = 0; j < all_links[i].size(); ++j)
             links.push_back(all_links[i][j].first);
-        }
-    }
+
+    // weights
+    total_weight = 2 * nb_links;
 }
 
 vector<vector<pair<int, float>>> Graph::read_file(string filepath)
@@ -82,55 +86,13 @@ void Graph::display()
 {
     for (unsigned int node = 0; node < nb_nodes; node++) {
         pair<vector<unsigned int>::iterator, vector<float>::iterator> p = neighbors(node);
-        cout << node << ":";
-        for (unsigned int i = 0; i < nb_neighbors(node); i++) {
-            if (true) {
-                if (weights.size() != 0)
-                    cout << " (" << *(p.first + i) << " " << *(p.second + i) << ")";
-                else
-                    cout << " " << *(p.first + i);
-            }
-        }
-        cout << endl;
-    }
-}
-
-void Graph::display_reverse()
-{
-    for (unsigned int node = 0; node < nb_nodes; node++) {
-        pair<vector<unsigned int>::iterator, vector<float>::iterator> p = neighbors(node);
-        for (unsigned int i = 0; i < nb_neighbors(node); i++) {
-            if (node > *(p.first + i)) {
-                if (weights.size() != 0)
-                    cout << *(p.first + i) << " " << node << " " << *(p.second + i) << endl;
-                else
-                    cout << *(p.first + i) << " " << node << endl;
+        for (int i = 0; i < nb_neighbors(node); i++) {
+            if (weights.size() == 0)
+                cout << node << " " << *(p.first + i) << " " << *(p.second + i) << endl;
+            else {
+                cout << (node + 1) << " " << (*(p.first + i) + 1) << endl;
+                //	cout << (node) << " " << (*(p.first+i)) << endl;
             }
         }
     }
-}
-
-bool Graph::check_symmetry()
-{
-    int error = 0;
-    for (unsigned int node = 0; node < nb_nodes; node++) {
-        pair<vector<unsigned int>::iterator, vector<float>::iterator> p = neighbors(node);
-        for (unsigned int i = 0; i < nb_neighbors(node); i++) {
-            unsigned int neigh = *(p.first + i);
-            float weight = *(p.second + i);
-
-            pair<vector<unsigned int>::iterator, vector<float>::iterator> p_neigh = neighbors(neigh);
-            for (unsigned int j = 0; j < nb_neighbors(neigh); j++) {
-                unsigned int neigh_neigh = *(p_neigh.first + j);
-                float neigh_weight = *(p_neigh.second + j);
-
-                if (node == neigh_neigh && weight != neigh_weight) {
-                    cout << node << " " << neigh << " " << weight << " " << neigh_weight << endl;
-                    if (error++ == 10)
-                        exit(0);
-                }
-            }
-        }
-    }
-    return (error == 0);
 }

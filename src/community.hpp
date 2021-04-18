@@ -1,4 +1,4 @@
-#include "graph.hpp"
+#include "graph.cpp"
 
 class Community {
 public:
@@ -24,7 +24,7 @@ public:
 
     // constructors
     // reads graph from file using graph constructor
-    Community(string filename, int nb_pass, double min_modularity);
+    Community(string filename, int type, int nb_pass, double min_modularity);
     // copy graph
     Community(Graph g, int nb_pass, double min_modularity);
 

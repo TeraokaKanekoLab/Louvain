@@ -19,6 +19,8 @@
 #else
 #include <malloc.h>
 #endif
+#define WEIGHTED 0
+#define UNWEIGHTED 1
 using namespace std;
 
 void print_vector(vector<int> nums)

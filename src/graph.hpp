@@ -11,16 +11,14 @@ public:
     vector<float> weights;
 
     Graph();
-    Graph(string filepath);
+    Graph(string filepath, int type);
     vector<vector<pair<int, float>>> read_file(string filepath);
     void renumber(vector<vector<pair<int, float>>>& all_links);
 
-    void display(void);
-    void display_reverse(void);
-    bool check_symmetry();
+    void display();
 
     inline unsigned int nb_neighbors(unsigned int node);
-    inline double nb_selfloops(unsigned int node);
+    inline int nb_selfloops(unsigned int node);
     inline double weighted_degree(unsigned int node);
 
     // return pointers to the first neighbor and first weight of the node
@@ -56,33 +54,34 @@ inline unsigned int Graph::nb_neighbors(unsigned int node)
 }
 
 // This method doesn't seem efficient
-inline double Graph::nb_selfloops(unsigned int node)
+inline int Graph::nb_selfloops(unsigned int node)
 {
     assert(node >= 0 && node < nb_nodes);
-
     pair<vector<unsigned int>::iterator, vector<float>::iterator> p = neighbors(node);
     for (unsigned int i = 0; i < nb_neighbors(node); ++i) {
         if (*(p.first + i) != node)
             continue;
         if (weights.size() == 0)
-            return 1.;
-        return (double)*(p.second + i);
+            return 1;
+        return *(p.second + i);
     }
 
-    return 0.;
+    return 0;
 }
 
 inline double Graph::weighted_degree(unsigned int node)
 {
     assert(node >= 0 && node < nb_nodes);
 
-    if (weights.size() == 0)
-        return (double)nb_neighbors(node);
     pair<vector<unsigned int>::iterator, vector<float>::iterator> p = neighbors(node);
-    double res = 0;
-    for (unsigned int i = 0; i < nb_neighbors(node); ++i)
-        res += (double)*(p.second + i);
-    return res;
+    if (p.second == weights.end())
+        return nb_neighbors(node);
+    else {
+        int res = 0;
+        for (int i = 0; i < nb_neighbors(node); i++)
+            res += *(p.second + i);
+        return res;
+    }
 }
 
 inline pair<vector<unsigned int>::iterator, vector<float>::iterator> Graph::neighbors(unsigned int node)
