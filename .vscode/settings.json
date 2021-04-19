@@ -73,6 +73,13 @@
         "variant": "cpp",
         "vector": "cpp",
         "numeric": "cpp",
-        "random": "cpp"
+        "random": "cpp",
+        "clocale": "cpp",
+        "codecvt": "cpp",
+        "condition_variable": "cpp",
+        "thread": "cpp",
+        "*.tcc": "cpp",
+        "memory_resource": "cpp",
+        "cinttypes": "cpp"
     }
 }

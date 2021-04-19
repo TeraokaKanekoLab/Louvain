@@ -18,7 +18,7 @@ int main(int argc, char** argv)
     time(&time_begin);
     display_time("start");
 
-    Community c(argv[1], UNWEIGHTED, -1, PRECISION);
+    Community c(argv[1], UNWEIGHTED, PRECISION);
 
     display_time("file read");
     // c.g.print_links();
@@ -27,8 +27,8 @@ int main(int argc, char** argv)
     double mod = c.modularity();
 
     cerr << "network : "
-         << c.g.nb_nodes << " nodes, "
-         << c.g.nb_links << " links, "
+         << c.g.num_nodes << " nodes, "
+         << c.g.num_links << " links, "
          << c.g.total_weight << " weight." << endl;
 
     double new_mod = c.one_level();
@@ -46,11 +46,11 @@ int main(int argc, char** argv)
     int level = 0;
     while (new_mod - mod > PRECISION) {
         mod = new_mod;
-        Community c(g, -1, PRECISION);
+        Community c(g, PRECISION);
 
         cerr << "\nnetwork : "
-             << c.g.nb_nodes << " nodes, "
-             << c.g.nb_links << " links, "
+             << c.g.num_nodes << " nodes, "
+             << c.g.num_links << " links, "
              << c.g.total_weight << " weight." << endl;
 
         new_mod = c.one_level();

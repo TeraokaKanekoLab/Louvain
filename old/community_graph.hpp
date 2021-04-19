@@ -18,7 +18,7 @@ private:
     int sum_weights;
 
     // debug
-    std::__1::chrono::microseconds duration;
+    chrono::microseconds duration;
 
 public:
     CommunityGraph(Graph graph)
@@ -37,7 +37,7 @@ public:
         }
 
         sum_weights = graph.get_num_edges();
-        duration = (std::__1::chrono::microseconds)0;
+        duration = (chrono::microseconds)0;
     }
 
     // ---------------------------------------------------

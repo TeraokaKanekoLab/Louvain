@@ -12,9 +12,10 @@ Git repository for understanding modularity and [Louvain method](https://iopscie
 | 0.4 | April 13, 2021 | [812d3f1](https://github.com/TeraokaKanekoLab/Louvain/commit/812d3f1f0c908d5c9fc5686db1f83a6117f41a69) | Louvain method Completed? |
 | 0.5 | April 15, 2021 | [cebe22d](https://github.com/TeraokaKanekoLab/Louvain/commit/cebe22dbe515b2ce28a9142a0d6dd41f1221fc97) | Louvain method Completed? |
 | 0.6 | April 16, 2021 | [ee479cc](https://github.com/TeraokaKanekoLab/Louvain/commit/ee479cc5f1aba0528401c5517992b2f1e59fd3ff) | computation time drastically reduced |
-| 0.7 | April 17, 2021 | [f4df9ff](https://github.com/TeraokaKanekoLab/Louvain/commit/f4df9ff5735e90f6b6a69a85916a6ff2b22a7beb) | Copying other's implementation |
-| 0.8 | April 18, 2021 | [b11f460](https://github.com/TeraokaKanekoLab/Louvain/commit/b11f4608b5cecd1ae36400711caa6de872d5ef5a) | Louvain Method Completed |
-| 0.9 | April 18, 2021 | [1ceb79b](https://github.com/TeraokaKanekoLab/Louvain/commit/1ceb79bc6a6b624395f5f478780ec06e7da43296) | Louvain Rewrite to non-iterate version |
+| 0.7 | April 17, 2021 | [04879e3](https://github.com/TeraokaKanekoLab/Louvain/commit/04879e3cde5988c97afab50e5fe457e4b38c56ce) | Great Speedup |
+| 0.8 | April 17, 2021 | [f4df9ff](https://github.com/TeraokaKanekoLab/Louvain/commit/f4df9ff5735e90f6b6a69a85916a6ff2b22a7beb) | Copying other's implementation |
+| 0.9 | April 18, 2021 | [b11f460](https://github.com/TeraokaKanekoLab/Louvain/commit/b11f4608b5cecd1ae36400711caa6de872d5ef5a) | Louvain Method Completed |
+| 0.10 | April 18, 2021 | [1ceb79b](https://github.com/TeraokaKanekoLab/Louvain/commit/1ceb79bc6a6b624395f5f478780ec06e7da43296) | Louvain Rewrite to non-iterate version |
 
 ## Graph Data File Format
 The graph data files need to follow the rule below. `<endpoint n>` needs to be an int (node id)

@@ -2,18 +2,18 @@
 
 Graph::Graph()
 {
-    nb_nodes = 0;
-    nb_links = 0;
+    num_nodes = 0;
+    num_links = 0;
     total_weight = 0;
 }
 
 Graph::Graph(string filepath, int type)
 {
-    nb_nodes = 0;
-    nb_links = 0;
+    num_nodes = 0;
+    num_links = 0;
     vector<vector<pair<int, float>>> all_links = read_file(filepath);
     renumber(all_links);
-    nb_nodes = all_links.size();
+    num_nodes = all_links.size();
 
     // cumulative degree sequence
     unsigned long cumulative = 0;
@@ -28,7 +28,7 @@ Graph::Graph(string filepath, int type)
             links.push_back(all_links[i][j].first);
 
     // weights
-    total_weight = 2 * nb_links;
+    total_weight = 2 * num_links;
 }
 
 vector<vector<pair<int, float>>> Graph::read_file(string filepath)
@@ -46,7 +46,7 @@ vector<vector<pair<int, float>>> Graph::read_file(string filepath)
         all_links[u].push_back(make_pair(v, 1));
         if (u != v)
             all_links[v].push_back(make_pair(u, 1));
-        ++nb_links;
+        ++num_links;
     }
     finput.close();
 
@@ -84,11 +84,11 @@ void Graph::renumber(vector<vector<pair<int, float>>>& all_links)
 
 void Graph::display()
 {
-    for (int node = 0; node < nb_nodes; node++) {
+    for (int node = 0; node < num_nodes; node++) {
         pair<int, int> indices = neighbors(node);
         int link_index = indices.first;
         int weight_index = indices.second;
-        for (int i = 0; i < nb_neighbors(node); i++) {
+        for (int i = 0; i < num_neighbors(node); i++) {
             if (weights.size() == 0)
                 cout << node << " " << links[link_index + i] << " " << weights[weight_index + i] << endl;
             else {

@@ -2,8 +2,8 @@
 
 class Graph {
 public:
-    int nb_nodes;
-    unsigned long nb_links;
+    int num_nodes;
+    unsigned long num_links;
     double total_weight;
 
     vector<unsigned long> degrees;
@@ -17,8 +17,8 @@ public:
 
     void display();
 
-    inline int nb_neighbors(int node);
-    inline int nb_selfloops(int node);
+    inline int num_neighbors(int node);
+    inline int num_selfloops(int node);
     inline double weighted_degree(int node);
 
     // return pointers to the first neighbor and first weight of the node
@@ -43,9 +43,9 @@ public:
     }
 };
 
-inline int Graph::nb_neighbors(int node)
+inline int Graph::num_neighbors(int node)
 {
-    assert(node >= 0 && node < nb_nodes);
+    assert(node >= 0 && node < num_nodes);
 
     if (node == 0)
         return degrees[0];
@@ -54,14 +54,14 @@ inline int Graph::nb_neighbors(int node)
 }
 
 // This method doesn't seem efficient
-inline int Graph::nb_selfloops(int node)
+inline int Graph::num_selfloops(int node)
 {
-    assert(node >= 0 && node < nb_nodes);
+    assert(node >= 0 && node < num_nodes);
     pair<int, int> indices = neighbors(node);
     int link_index = indices.first;
     int weight_index = indices.second;
 
-    for (int i = 0; i < nb_neighbors(node); ++i) {
+    for (int i = 0; i < num_neighbors(node); ++i) {
         if (links[link_index + i] != node)
             continue;
         if (weights.size() == 0)
@@ -74,22 +74,22 @@ inline int Graph::nb_selfloops(int node)
 
 inline double Graph::weighted_degree(int node)
 {
-    assert(node >= 0 && node < nb_nodes);
+    assert(node >= 0 && node < num_nodes);
 
     pair<int, int> indices = neighbors(node);
     int link_index = indices.first;
     int weight_index = indices.second;
     if (weights.size() == 0)
-        return nb_neighbors(node);
+        return num_neighbors(node);
     int res = 0;
-    for (int i = 0; i < nb_neighbors(node); i++)
+    for (int i = 0; i < num_neighbors(node); i++)
         res += weights[weight_index + i];
     return res;
 }
 
 inline pair<int, int> Graph::neighbors(int node)
 {
-    assert(node >= 0 && node < nb_nodes);
+    assert(node >= 0 && node < num_nodes);
 
     // if (node == 0)
     //     return make_pair(links.begin(), weights.begin());

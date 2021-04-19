@@ -8,14 +8,10 @@ public:
     int size;
 
     // community to which each node belongs
-    vector<int> n2c;
+    vector<int> community_of;
 
     // used to compute the modularity participation of each community
     vector<int> in, tot;
-
-    // number of pass for one level computation
-    // if -1, compute as many pass as needed to increase mmodularity
-    int nb_pass;
 
     // a new pass is computed if the last one has generated an increase
     // greater than min_modularity
@@ -24,9 +20,9 @@ public:
 
     // constructors
     // reads graph from file using graph constructor
-    Community(string filename, int type, int nb_pass, double min_modularity);
+    Community(string filename, int type, double min_modularity);
     // copy graph
-    Community(Graph g, int nb_pass, double min_modularity);
+    Community(Graph g, double min_modularity);
 
     // display the community of each node
     void display();
@@ -50,7 +46,7 @@ public:
 
     // compute the set of neighboring communities of node
     // for each community, gives the number of links from node to comm
-    map<int, int> neigh_comm(int node);
+    map<int, int> neighboring_communities(int node);
 
     // compute the modularity of the curernt partition
     double modularity();
@@ -67,6 +63,8 @@ public:
     // compute communities of the graph for one level
     // return the modularity
     double one_level();
+
+    vector<int> generate_random_order(int size);
 };
 
 inline void Community::remove(int node, int comm, int dnodecomm)
@@ -74,8 +72,8 @@ inline void Community::remove(int node, int comm, int dnodecomm)
     assert(node >= 0 && node < size);
 
     tot[comm] -= g.weighted_degree(node);
-    in[comm] -= 2 * dnodecomm + g.nb_selfloops(node);
-    n2c[node] = -1;
+    in[comm] -= 2 * dnodecomm + g.num_selfloops(node);
+    community_of[node] = -1;
 }
 
 inline void Community::insert(int node, int comm, int dnodecomm)
@@ -83,8 +81,8 @@ inline void Community::insert(int node, int comm, int dnodecomm)
     assert(node >= 0 && node < size);
 
     tot[comm] += g.weighted_degree(node);
-    in[comm] += 2 * dnodecomm + g.nb_selfloops(node);
-    n2c[node] = comm;
+    in[comm] += 2 * dnodecomm + g.num_selfloops(node);
+    community_of[node] = comm;
 }
 
 inline double Community::modularity_gain(int node, int comm, int dnodecomm)

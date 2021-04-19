@@ -1,39 +1,35 @@
 #include "community.hpp"
 
-Community::Community(string filename, int type, int nbp, double minm)
+Community::Community(string filename, int type, double minm)
 {
     g = Graph(filename, type);
-    size = g.nb_nodes;
-    n2c.resize(size);
+    size = g.num_nodes;
+    community_of.resize(size);
     in.resize(size);
     tot.resize(size);
 
     for (int i = 0; i < size; ++i) {
-        n2c[i] = i;
-        in[i] = g.nb_selfloops(i);
+        community_of[i] = i;
+        in[i] = g.num_selfloops(i);
         tot[i] = g.weighted_degree(i);
     }
-
-    nb_pass = nbp;
     min_modularity = minm;
 }
 
-Community::Community(Graph gc, int nbp, double minm)
+Community::Community(Graph gc, double minm)
 {
     g = gc;
-    size = g.nb_nodes;
+    size = g.num_nodes;
 
-    n2c.resize(size);
+    community_of.resize(size);
     in.resize(size);
     tot.resize(size);
 
     for (int i = 0; i < size; ++i) {
-        n2c[i] = i;
-        in[i] = g.nb_selfloops(i);
+        community_of[i] = i;
+        in[i] = g.num_selfloops(i);
         tot[i] = g.weighted_degree(i);
     }
-
-    nb_pass = nbp;
     min_modularity = minm;
 }
 
@@ -42,7 +38,7 @@ void Community::display()
     cerr << endl
          << "<";
     for (int i = 0; i < size; i++)
-        cerr << " " << i << "/" << n2c[i] << "/" << in[i] << "/" << tot[i];
+        cerr << " " << i << "/" << community_of[i] << "/" << in[i] << "/" << tot[i];
     cerr << ">" << endl;
 }
 
@@ -59,34 +55,29 @@ double Community::modularity()
     return q;
 }
 
-map<int, int> Community::neigh_comm(int node)
+map<int, int> Community::neighboring_communities(int node)
 {
     map<int, int> res;
     pair<int, int> indices = g.neighbors(node);
     int link_index = indices.first;
     int weight_index = indices.second;
 
-    int deg = g.nb_neighbors(node);
+    int deg = g.num_neighbors(node);
 
-    res.insert(make_pair(n2c[node], 0));
+    res.insert(make_pair(community_of[node], 0));
 
     for (int i = 0; i < deg; ++i) {
         int neigh = g.links[indices.first + i];
-        int neigh_comm = n2c[neigh];
+        int neighboring_communities = community_of[neigh];
         int neigh_weight = (g.weights.size() == 0) ? 1 : g.weights[weight_index + i];
 
         if (neigh == node)
             continue;
-        // map<int, int>::iterator it = res.find(neigh_comm);
-        // if (it != res.end())
-        //     it->second += neigh_weight;
-        // else
-        //     res.insert(make_pair(neigh_comm, neigh_weight));
-        map<int, int>::iterator it = res.find(neigh_comm);
+        map<int, int>::iterator it = res.find(neighboring_communities);
         if (it != res.end())
             it->second += neigh_weight;
         else
-            res.insert(make_pair(neigh_comm, neigh_weight));
+            res.insert(make_pair(neighboring_communities, neigh_weight));
     }
 
     return res;
@@ -96,7 +87,7 @@ void Community::partition2graph()
 {
     vector<int> renumber(size, -1);
     for (int node = 0; node < size; ++node)
-        ++renumber[n2c[node]];
+        ++renumber[community_of[node]];
 
     int final = 0;
     for (int i = 0; i < size; ++i)
@@ -105,10 +96,10 @@ void Community::partition2graph()
 
     for (int i = 0; i < size; ++i) {
         pair<int, int> indices = g.neighbors(i);
-        int deg = g.nb_neighbors(i);
+        int deg = g.num_neighbors(i);
         for (int j = 0; j < deg; ++j) {
             int neigh = g.links[indices.first + j];
-            cout << renumber[n2c[i]] << " " << renumber[n2c[neigh]] << endl;
+            cout << renumber[community_of[i]] << " " << renumber[community_of[neigh]] << endl;
         }
     }
 }
@@ -122,14 +113,14 @@ void Community::display_partition()
         if (renumber[i] != -1)
             renumber[i] = final++;
     for (int i = 0; i < size; ++i)
-        cout << i << " " << renumber[n2c[i]] << endl;
+        cout << i << " " << renumber[community_of[i]] << endl;
 }
 
 Graph Community::partition2graph_binary()
 {
     vector<int> renumber(size, -1);
     for (int node = 0; node < size; ++node)
-        ++renumber[n2c[node]];
+        ++renumber[community_of[node]];
 
     int final = 0;
     for (int i = 0; i < size; ++i)
@@ -138,11 +129,11 @@ Graph Community::partition2graph_binary()
 
     vector<vector<int>> comm_nodes(final);
     for (int node = 0; node < size; ++node)
-        comm_nodes[renumber[n2c[node]]].push_back(node);
+        comm_nodes[renumber[community_of[node]]].push_back(node);
 
     // unweighted to weighted
     Graph g2;
-    g2.nb_nodes = comm_nodes.size();
+    g2.num_nodes = comm_nodes.size();
     g2.degrees.resize(comm_nodes.size(), -1);
     g2.links.resize(g.links.size(), -1);
     g2.weights.resize(g.links.size(), -1);
@@ -158,22 +149,22 @@ Graph Community::partition2graph_binary()
             pair<int, int> indices = g.neighbors(comm_nodes[comm][node]);
             int link_index = indices.first;
             int weight_index = indices.second;
-            int deg = g.nb_neighbors(comm_nodes[comm][node]);
+            int deg = g.num_neighbors(comm_nodes[comm][node]);
             for (int i = 0; i < deg; ++i) {
                 int neigh = g.links[indices.first + i];
-                int neigh_comm = renumber[n2c[neigh]];
+                int neighboring_communities = renumber[community_of[neigh]];
                 int neigh_weight = (g.weights.size() == 0) ? 1 : g.weights[weight_index + i];
 
-                it = m.find(neigh_comm);
+                it = m.find(neighboring_communities);
                 if (it == m.end())
-                    m.insert(make_pair(neigh_comm, neigh_weight));
+                    m.insert(make_pair(neighboring_communities, neigh_weight));
                 else
                     it->second += neigh_weight;
             }
         }
 
         g2.degrees[comm] = (comm == 0) ? m.size() : g2.degrees[comm - 1] + m.size();
-        g2.nb_links += m.size();
+        g2.num_links += m.size();
 
         // for (it = m.begin(); it != m.end(); ++it) {
         //     g2.total_weight += it->second;
@@ -190,22 +181,14 @@ Graph Community::partition2graph_binary()
     }
 
     // correct here?
-    g.links.resize((long)g2.nb_links);
-    g.weights.resize((long)g2.nb_links);
+    g.links.resize((long)g2.num_links);
+    g.weights.resize((long)g2.num_links);
 
     return g2;
 }
 
-double Community::one_level()
+vector<int> Community::generate_random_order(int size)
 {
-    bool improvement = false;
-    int nb_pass_done = 0;
-    double new_mod = modularity();
-    double cur_mod = new_mod;
-    // repeat while
-    //   there is an improvement of modularity
-    //   or there is an improvement of modularity greater than a given epsilon
-    //   or a predefined number of pass have been done
     vector<int> random_order(size);
     for (int i = 0; i < size; i++)
         random_order[i] = i;
@@ -215,52 +198,56 @@ double Community::one_level()
         random_order[i] = random_order[rand_pos];
         random_order[rand_pos] = tmp;
     }
+    return random_order;
+}
 
-    do {
+double Community::one_level()
+{
+    int num_pass_done = 0;
+    double new_mod = modularity();
+    double cur_mod = -1;
+    vector<int> random_order = generate_random_order(size);
+
+    // repeat while
+    //   there is an improvement of modularity
+    //   or there is an improvement of modularity greater than a given epsilon
+    //   or a predefined number of pass have been done
+    while (new_mod - cur_mod > min_modularity) {
         cur_mod = new_mod;
-        improvement = false;
-        nb_pass_done++;
+        num_pass_done++;
 
         // for each node: remove the node from its community and insert it in the best community
-        for (int node_tmp = 0; node_tmp < size; node_tmp++) {
-            int node = node_tmp;
-            //      int node = random_order[node_tmp];
-            //      if (node%1000000==0) {fprintf(stderr,"%d ",node); fflush(stderr);}
-            int node_comm = n2c[node];
+        for (int node = 0; node < size; node++) {
+            int community = community_of[node];
 
             // computation of all neighboring communities of current node
-            map<int, int> ncomm = neigh_comm(node);
+            map<int, int> nbr_communities = neighboring_communities(node);
 
             // remove node from its current community
-            remove(node, node_comm, ncomm.find(node_comm)->second);
+            remove(node, community, nbr_communities.find(community)->second);
 
             // compute the nearest community for node
             // default choice for future insertion is the former community
-            int best_comm = node_comm;
-            int best_nblinks = 0; //ncomm.find(node_comm)->second;
-            double best_increase = 0.; //modularity_gain(node, best_comm, best_nblinks);
-            for (auto ncom : ncomm) {
-                double increase = modularity_gain(node, ncom.first, ncom.second);
+            int best_community = community;
+            int best_num_links = 0; //nbr_communities.find(community)->second;
+            double best_increase = 0.; //modularity_gain(node, best_community, best_num_links);
+            for (auto c : nbr_communities) {
+                double increase = modularity_gain(node, c.first, c.second);
                 if (increase > best_increase) {
-                    best_comm = ncom.first;
-                    best_nblinks = ncom.second;
+                    best_community = c.first;
+                    best_num_links = c.second;
                     best_increase = increase;
                 }
             }
 
             // insert node in the nearest community
-            //      cerr << "insert " << node << " in " << best_comm << " " << best_increase << endl;
-            insert(node, best_comm, best_nblinks);
-
-            if (best_comm != node_comm)
-                improvement = true;
+            //      cerr << "insert " << node << " in " << best_community << " " << best_increase << endl;
+            insert(node, best_community, best_num_links);
         }
 
         new_mod = modularity();
-        cerr << "pass number " << nb_pass_done << " of " << nb_pass
-             << " : " << new_mod << " " << cur_mod << endl;
-
-    } while (improvement && new_mod - cur_mod > min_modularity && nb_pass_done != nb_pass);
+        cerr << "pass number " << num_pass_done << ": " << cur_mod << " ---> " << new_mod << endl;
+    }
 
     return new_mod;
 }
