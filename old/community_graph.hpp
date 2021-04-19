@@ -37,6 +37,8 @@ public:
         }
 
         sum_weights = graph.get_num_edges();
+
+        cout << "nodes: " << neighbors.size() << ", edges: " << sum_weights << endl;
         duration = (chrono::microseconds)0;
     }
 
@@ -243,8 +245,8 @@ public:
         double modularity = 0;
         for (auto [c, inside_weight] : inside_weights) {
             modularity += (double)inside_weight / (2 * sum_weights);
-            int attached_weight = attached_weights[c];
-            modularity -= (double)attached_weight * attached_weight / (4 * sum_weights * sum_weights);
+            double attached_weight = attached_weights[c];
+            modularity -= attached_weight / (2 * sum_weights) * attached_weight / (2 * sum_weights);
         }
         return modularity;
     }
@@ -260,9 +262,9 @@ public:
         double ki = attached_weights[from];
         double ki_in = neighbors[from][to];
         double m = sum_weights;
-        double delta_q = (sigma_in + 2 * ki_in) / (2 * m) - (sigma_tot + ki) * (sigma_tot + ki) / (4 * m * m);
-        delta_q -= sigma_in / (2 * m) - sigma_tot * sigma_tot / (4 * m * m) - ki * ki / (4 * m * m);
-        return delta_q;
+        // double delta_q = (sigma_in + 2 * ki_in) / (2 * m) - (sigma_tot + ki) * (sigma_tot + ki) / (4 * m * m);
+        // delta_q -= sigma_in / (2 * m) - sigma_tot * sigma_tot / (4 * m * m) - ki * ki / (4 * m * m);
+        return ki_in / m - sigma_tot / (2 * m) * ki / m;
     }
 
     double louvain()
@@ -275,11 +277,10 @@ public:
         while (true) {
             // randomize the order of vertices
             vector<int> communities = get_communities();
-            random_device rd;
-            mt19937 g(rd());
-            shuffle(communities.begin(), communities.end(), g);
+            // random_device rd;
+            // mt19937 g(rd());
+            // shuffle(communities.begin(), communities.end(), g);
 
-            double res = compute_modurality();
             for (auto from : communities) {
                 int best_community = from;
                 double best_increase = 0;
@@ -296,17 +297,20 @@ public:
                 }
                 if (best_increase <= 0)
                     continue;
+                // cout << best_increase << endl;
                 start = chrono::steady_clock::now();
                 move_community_into_another(from, best_community);
                 end = chrono::steady_clock::now();
                 move += chrono::duration_cast<chrono::microseconds>(end - start);
             }
+            double res = compute_modurality();
+            cout << prev << " ---> " << res << endl;
             if (res - prev <= MIN)
                 break;
             prev = res;
         }
-        cout << "move: " << (double)move.count() / 1000000 << "s" << endl;
-        cout << "duration: " << (double)duration.count() / 1000000 << "s" << endl;
+        // cout << "move: " << (double)move.count() / 1000000 << "s" << endl;
+        // cout << "duration: " << (double)duration.count() / 1000000 << "s" << endl;
         return prev;
     }
 

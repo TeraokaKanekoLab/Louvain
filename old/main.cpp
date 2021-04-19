@@ -15,12 +15,18 @@ void test4(string filepath)
 {
     Graph graph = read_graph(filepath);
     CommunityGraph cg(graph);
+    double prev = -1;
+    double mod = cg.compute_modurality();
     auto start = chrono::steady_clock::now();
-    cg.louvain();
+    while (mod - prev > 0) {
+        prev = mod;
+        cg.louvain();
+        mod = cg.compute_modurality();
+        cout << mod << endl;
+        cout << endl;
+    }
     auto end = chrono::steady_clock::now();
     auto duration = chrono::duration_cast<chrono::microseconds>(end - start);
-    cout << cg.compute_modurality() << endl;
-    // cg.print_communities();
     cout << (double)duration.count() / 1000000 << " s" << endl;
 }
 
