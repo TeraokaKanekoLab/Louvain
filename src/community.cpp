@@ -62,19 +62,26 @@ double Community::modularity()
 map<int, int> Community::neigh_comm(int node)
 {
     map<int, int> res;
-    pair<vector<unsigned int>::iterator, vector<float>::iterator> p = g.neighbors(node);
+    pair<int, int> indices = g.neighbors(node);
+    int link_index = indices.first;
+    int weight_index = indices.second;
 
     int deg = g.nb_neighbors(node);
 
     res.insert(make_pair(n2c[node], 0));
 
     for (int i = 0; i < deg; ++i) {
-        int neigh = *(p.first + i);
+        int neigh = g.links[indices.first + i];
         int neigh_comm = n2c[neigh];
-        int neigh_weight = (g.weights.size() == 0) ? 1 : *(p.second + i);
+        int neigh_weight = (g.weights.size() == 0) ? 1 : g.weights[weight_index + i];
 
         if (neigh == node)
             continue;
+        // map<int, int>::iterator it = res.find(neigh_comm);
+        // if (it != res.end())
+        //     it->second += neigh_weight;
+        // else
+        //     res.insert(make_pair(neigh_comm, neigh_weight));
         map<int, int>::iterator it = res.find(neigh_comm);
         if (it != res.end())
             it->second += neigh_weight;
@@ -97,10 +104,10 @@ void Community::partition2graph()
             renumber[i] = final++;
 
     for (int i = 0; i < size; ++i) {
-        pair<vector<unsigned int>::iterator, vector<float>::iterator> p = g.neighbors(i);
+        pair<int, int> indices = g.neighbors(i);
         int deg = g.nb_neighbors(i);
         for (int j = 0; j < deg; ++j) {
-            int neigh = *(p.first + j);
+            int neigh = g.links[indices.first + j];
             cout << renumber[n2c[i]] << " " << renumber[n2c[neigh]] << endl;
         }
     }
@@ -148,12 +155,14 @@ Graph Community::partition2graph_binary()
 
         int comm_size = comm_nodes[comm].size();
         for (int node = 0; node < comm_size; ++node) {
-            pair<vector<unsigned int>::iterator, vector<float>::iterator> p = g.neighbors(comm_nodes[comm][node]);
+            pair<int, int> indices = g.neighbors(comm_nodes[comm][node]);
+            int link_index = indices.first;
+            int weight_index = indices.second;
             int deg = g.nb_neighbors(comm_nodes[comm][node]);
             for (int i = 0; i < deg; ++i) {
-                int neigh = *(p.first + i);
+                int neigh = g.links[indices.first + i];
                 int neigh_comm = renumber[n2c[neigh]];
-                int neigh_weight = (g.weights.size() == 0) ? 1 : *(p.second + i);
+                int neigh_weight = (g.weights.size() == 0) ? 1 : g.weights[weight_index + i];
 
                 it = m.find(neigh_comm);
                 if (it == m.end())
@@ -166,10 +175,16 @@ Graph Community::partition2graph_binary()
         g2.degrees[comm] = (comm == 0) ? m.size() : g2.degrees[comm - 1] + m.size();
         g2.nb_links += m.size();
 
-        for (it = m.begin(); it != m.end(); ++it) {
-            g2.total_weight += it->second;
-            g2.links[where] = it->first;
-            g2.weights[where] = it->second;
+        // for (it = m.begin(); it != m.end(); ++it) {
+        //     g2.total_weight += it->second;
+        //     g2.links[where] = it->first;
+        //     g2.weights[where] = it->second;
+        //     ++where;
+        // }
+        for (auto item : m) {
+            g2.total_weight += item.second;
+            g2.links[where] = item.first;
+            g2.weights[where] = item.second;
             ++where;
         }
     }
@@ -187,7 +202,6 @@ double Community::one_level()
     int nb_pass_done = 0;
     double new_mod = modularity();
     double cur_mod = new_mod;
-
     // repeat while
     //   there is an improvement of modularity
     //   or there is an improvement of modularity greater than a given epsilon
@@ -225,11 +239,11 @@ double Community::one_level()
             int best_comm = node_comm;
             int best_nblinks = 0; //ncomm.find(node_comm)->second;
             double best_increase = 0.; //modularity_gain(node, best_comm, best_nblinks);
-            for (map<int, int>::iterator it = ncomm.begin(); it != ncomm.end(); it++) {
-                double increase = modularity_gain(node, it->first, it->second);
+            for (auto ncom : ncomm) {
+                double increase = modularity_gain(node, ncom.first, ncom.second);
                 if (increase > best_increase) {
-                    best_comm = it->first;
-                    best_nblinks = it->second;
+                    best_comm = ncom.first;
+                    best_nblinks = ncom.second;
                     best_increase = increase;
                 }
             }

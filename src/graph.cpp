@@ -59,22 +59,22 @@ void Graph::renumber(vector<vector<pair<int, float>>>& all_links)
     vector<int> renum(all_links.size(), -1);
     int nb = 0;
 
-    for (unsigned int i = 0; i < all_links.size(); ++i) {
-        for (unsigned int j = 0; j < all_links[i].size(); j++) {
+    for (int i = 0; i < all_links.size(); ++i) {
+        for (int j = 0; j < all_links[i].size(); j++) {
             linked[i] = true;
             linked[all_links[i][j].first] = true;
         }
     }
 
-    for (unsigned int i = 0; i < all_links.size(); ++i) {
+    for (int i = 0; i < all_links.size(); ++i) {
         if (linked[i])
             renum[i] = nb++;
     }
 
-    for (unsigned int i = 0; i < all_links.size(); ++i) {
+    for (int i = 0; i < all_links.size(); ++i) {
         if (!linked[i])
             continue;
-        for (unsigned int j = 0; j < all_links[i].size(); ++j) {
+        for (int j = 0; j < all_links[i].size(); ++j) {
             all_links[i][j].first = renum[all_links[i][j].first];
         }
         all_links[renum[i]] = all_links[i];
@@ -84,14 +84,15 @@ void Graph::renumber(vector<vector<pair<int, float>>>& all_links)
 
 void Graph::display()
 {
-    for (unsigned int node = 0; node < nb_nodes; node++) {
-        pair<vector<unsigned int>::iterator, vector<float>::iterator> p = neighbors(node);
+    for (int node = 0; node < nb_nodes; node++) {
+        pair<int, int> indices = neighbors(node);
+        int link_index = indices.first;
+        int weight_index = indices.second;
         for (int i = 0; i < nb_neighbors(node); i++) {
             if (weights.size() == 0)
-                cout << node << " " << *(p.first + i) << " " << *(p.second + i) << endl;
+                cout << node << " " << links[link_index + i] << " " << weights[weight_index + i] << endl;
             else {
-                cout << (node + 1) << " " << (*(p.first + i) + 1) << endl;
-                //	cout << (node) << " " << (*(p.first+i)) << endl;
+                cout << (node + 1) << " " << (links[link_index + i] + 1) << endl;
             }
         }
     }

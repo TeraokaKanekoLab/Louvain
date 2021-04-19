@@ -2,12 +2,12 @@
 
 class Graph {
 public:
-    unsigned int nb_nodes;
+    int nb_nodes;
     unsigned long nb_links;
     double total_weight;
 
     vector<unsigned long> degrees;
-    vector<unsigned int> links;
+    vector<int> links;
     vector<float> weights;
 
     Graph();
@@ -17,12 +17,12 @@ public:
 
     void display();
 
-    inline unsigned int nb_neighbors(unsigned int node);
-    inline int nb_selfloops(unsigned int node);
-    inline double weighted_degree(unsigned int node);
+    inline int nb_neighbors(int node);
+    inline int nb_selfloops(int node);
+    inline double weighted_degree(int node);
 
     // return pointers to the first neighbor and first weight of the node
-    inline pair<vector<unsigned int>::iterator, vector<float>::iterator> neighbors(unsigned int node);
+    inline pair<int, int> neighbors(int node);
 
     void print_links()
     {
@@ -43,7 +43,7 @@ public:
     }
 };
 
-inline unsigned int Graph::nb_neighbors(unsigned int node)
+inline int Graph::nb_neighbors(int node)
 {
     assert(node >= 0 && node < nb_nodes);
 
@@ -54,43 +54,51 @@ inline unsigned int Graph::nb_neighbors(unsigned int node)
 }
 
 // This method doesn't seem efficient
-inline int Graph::nb_selfloops(unsigned int node)
+inline int Graph::nb_selfloops(int node)
 {
     assert(node >= 0 && node < nb_nodes);
-    pair<vector<unsigned int>::iterator, vector<float>::iterator> p = neighbors(node);
-    for (unsigned int i = 0; i < nb_neighbors(node); ++i) {
-        if (*(p.first + i) != node)
+    pair<int, int> indices = neighbors(node);
+    int link_index = indices.first;
+    int weight_index = indices.second;
+
+    for (int i = 0; i < nb_neighbors(node); ++i) {
+        if (links[link_index + i] != node)
             continue;
         if (weights.size() == 0)
             return 1;
-        return *(p.second + i);
+        return weights[weight_index + i];
     }
 
     return 0;
 }
 
-inline double Graph::weighted_degree(unsigned int node)
+inline double Graph::weighted_degree(int node)
 {
     assert(node >= 0 && node < nb_nodes);
 
-    pair<vector<unsigned int>::iterator, vector<float>::iterator> p = neighbors(node);
-    if (p.second == weights.end())
+    pair<int, int> indices = neighbors(node);
+    int link_index = indices.first;
+    int weight_index = indices.second;
+    if (weights.size() == 0)
         return nb_neighbors(node);
-    else {
-        int res = 0;
-        for (int i = 0; i < nb_neighbors(node); i++)
-            res += *(p.second + i);
-        return res;
-    }
+    int res = 0;
+    for (int i = 0; i < nb_neighbors(node); i++)
+        res += weights[weight_index + i];
+    return res;
 }
 
-inline pair<vector<unsigned int>::iterator, vector<float>::iterator> Graph::neighbors(unsigned int node)
+inline pair<int, int> Graph::neighbors(int node)
 {
     assert(node >= 0 && node < nb_nodes);
 
+    // if (node == 0)
+    //     return make_pair(links.begin(), weights.begin());
+    // if (weights.size() == 0)
+    //     return make_pair(links.begin() + degrees[node - 1], weights.begin());
+    // return make_pair(links.begin() + degrees[node - 1], weights.begin() + degrees[node - 1]);
     if (node == 0)
-        return make_pair(links.begin(), weights.begin());
+        return make_pair(0, 0);
     if (weights.size() == 0)
-        return make_pair(links.begin() + degrees[node - 1], weights.begin());
-    return make_pair(links.begin() + degrees[node - 1], weights.begin() + degrees[node - 1]);
+        return make_pair(degrees[node - 1], 0);
+    return make_pair(degrees[node - 1], degrees[node - 1]);
 }
