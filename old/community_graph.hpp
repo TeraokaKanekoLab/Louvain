@@ -277,9 +277,10 @@ public:
         while (true) {
             // randomize the order of vertices
             vector<int> communities = get_communities();
-            // random_device rd;
-            // mt19937 g(rd());
-            // shuffle(communities.begin(), communities.end(), g);
+            random_device rd;
+            mt19937 g(rd());
+            shuffle(communities.begin(), communities.end(), g);
+            cout << communities.size() << endl;
 
             for (auto from : communities) {
                 int best_community = from;

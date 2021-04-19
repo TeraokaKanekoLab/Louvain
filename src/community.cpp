@@ -215,7 +215,6 @@ double Community::one_level()
     while (new_mod - cur_mod > min_modularity) {
         cur_mod = new_mod;
         num_pass_done++;
-
         // for each node: remove the node from its community and insert it in the best community
         for (int node = 0; node < size; node++) {
             int community = community_of[node];

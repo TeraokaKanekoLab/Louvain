@@ -70,7 +70,6 @@ public:
 inline void Community::remove(int node, int comm, int dnodecomm)
 {
     assert(node >= 0 && node < size);
-
     tot[comm] -= g.weighted_degree(node);
     in[comm] -= 2 * dnodecomm + g.num_selfloops(node);
     community_of[node] = -1;
