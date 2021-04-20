@@ -91,7 +91,7 @@ void Community::partition2graph()
 
     int final = 0;
     for (int i = 0; i < size; ++i)
-        if (renumber[i] != -1)
+        if (renumber[i] > 0)
             renumber[i] = final++;
 
     for (int i = 0; i < size; ++i) {
@@ -124,7 +124,7 @@ Graph Community::partition2graph_binary()
 
     int final = 0;
     for (int i = 0; i < size; ++i)
-        if (renumber[i] != -1)
+        if (renumber[i] >= 0)
             renumber[i] = final++;
 
     vector<vector<int>> comm_nodes(final);
@@ -137,6 +137,10 @@ Graph Community::partition2graph_binary()
     g2.degrees.resize(comm_nodes.size(), -1);
     g2.links.resize(g.links.size(), -1);
     g2.weights.resize(g.links.size(), -1);
+
+    for (int i = 0; i < size; ++i)
+        if (renumber[i] >= 0)
+            g2.original_id_to_node_id[i] = renumber[i];
 
     long where = 0;
     int comm_deg = comm_nodes.size();

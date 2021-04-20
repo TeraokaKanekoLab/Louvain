@@ -1,9 +1,9 @@
 modularity() {
-    echo "g++ src/main.cpp -o ./main --std=c++17"
-    g++ src/main.cpp -o ./main --std=c++17
-    echo "./main $1 $2"
-    ./main $1 $2
-    rm ./main
+    echo "g++ src/louvain.cpp -o ./louvain --std=c++17"
+    g++ src/louvain.cpp -o ./louvain --std=c++17
+    echo "./louvain $1 $2"
+    ./louvain $1 $2
+    rm ./louvain
 }
 old() {
     echo "g++ old/main.cpp -o ./main --std=c++17"

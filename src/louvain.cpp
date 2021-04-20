@@ -10,6 +10,15 @@ void display_time(const char* str)
     cerr << str << " : " << ctime(&rawtime);
 }
 
+void update_original_node_community(unordered_map<int, int>& original_id_to_community, vector<int>& community_of, unordered_map<int, int>& renum)
+{
+    for (auto [node, c] : original_id_to_community) {
+        int community = community_of[c];
+        int new_community = renum[community];
+        original_id_to_community[node] = new_community;
+    }
+}
+
 int main(int argc, char** argv)
 {
     srand(time(NULL));
@@ -18,7 +27,9 @@ int main(int argc, char** argv)
     time(&time_begin);
     display_time("start");
 
-    Community c(argv[1], UNWEIGHTED, PRECISION);
+    string filepath = argv[1];
+
+    Community c(filepath, UNWEIGHTED, PRECISION);
 
     display_time("file read");
     // c.g.print_links();
@@ -32,6 +43,10 @@ int main(int argc, char** argv)
          << c.g.total_weight << " weight." << endl;
 
     double new_mod = c.one_level();
+    unordered_map<int, int> original_id_to_community;
+    for (auto [node, c] : c.g.original_id_to_node_id) {
+        original_id_to_community[node] = c;
+    }
 
     display_time("communities computed");
     cerr << "modularity increased from " << mod << " to " << new_mod << endl;
@@ -40,6 +55,7 @@ int main(int argc, char** argv)
         c.display_partition();
 
     Graph g = c.partition2graph_binary();
+    update_original_node_community(original_id_to_community, c.community_of, g.original_id_to_node_id);
 
     display_time("network of communities computed");
 
@@ -64,12 +80,23 @@ int main(int argc, char** argv)
         g = c.partition2graph_binary();
         level++;
 
+        update_original_node_community(original_id_to_community, c.community_of, g.original_id_to_node_id);
+
         if (level == DISPLAY_LEVEL)
             g.display();
 
         display_time("network of communities computed");
     }
     time(&time_end);
+
+    string output_path = "community/" + filepath.substr(6);
+    output_path.replace(output_path.end() - 2, output_path.end(), "cm");
+    cout << output_path << endl;
+    ofstream output(output_path);
+
+    for (auto [original, community] : original_id_to_community) {
+        output << original << " " << community << endl;
+    }
 
     cerr << PRECISION << " " << new_mod << " " << (time_end - time_begin) << endl;
 }

@@ -10,6 +10,8 @@ public:
     vector<int> links;
     vector<float> weights;
 
+    unordered_map<int, int> original_id_to_node_id;
+
     Graph();
     Graph(string filepath, int type);
     vector<vector<pair<int, float>>> read_file(string filepath);

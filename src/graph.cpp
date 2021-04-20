@@ -67,8 +67,11 @@ void Graph::renumber(vector<vector<pair<int, float>>>& all_links)
     }
 
     for (int i = 0; i < all_links.size(); ++i) {
-        if (linked[i])
-            renum[i] = nb++;
+        if (linked[i]) {
+            renum[i] = nb;
+            original_id_to_node_id[i] = nb;
+            ++nb;
+        }
     }
 
     for (int i = 0; i < all_links.size(); ++i) {
@@ -79,6 +82,7 @@ void Graph::renumber(vector<vector<pair<int, float>>>& all_links)
         }
         all_links[renum[i]] = all_links[i];
     }
+
     all_links.resize(nb);
 }
 
