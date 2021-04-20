@@ -1,6 +1,6 @@
 # Louvain
 ## General
-Git repository for understanding modularity and [Louvain method](https://iopscience.iop.org/article/10.1088/1742-5468/2008/10/P10008/pdf).
+Git repository for understanding modularity and [Louvain method](https://iopscience.iop.org/article/10.1088/1742-5468/2008/10/P10008/meta).
 
 ## Version History
 | Version | Date  | Commit | Notes |
@@ -58,4 +58,4 @@ sh run.sh all graph/simple_graph.gr
 ```
 
 ## References
-1. Blondel, Vincent D; Guillaume, Jean-Loup; Lambiotte, Renaud; Lefebvre, Etienne (9 October 2008). [Fast unfolding of communities in large networks](https://iopscience.iop.org/article/10.1088/1742-5468/2008/10/P10008/pdf). Journal of Statistical Mechanics: Theory and Experiment. 2008 (10): P10008.
+1. Blondel, Vincent D; Guillaume, Jean-Loup; Lambiotte, Renaud; Lefebvre, Etienne (9 October 2008). [Fast unfolding of communities in large networks](https://iopscience.iop.org/article/10.1088/1742-5468/2008/10/P10008/meta). Journal of Statistical Mechanics: Theory and Experiment. 2008 (10): P10008.
