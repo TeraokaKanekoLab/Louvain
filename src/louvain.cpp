@@ -139,7 +139,7 @@ void loop()
         const char* c = statement.c_str();
         system(c);
         output << "sparse density: " << density1 << endl;
-        output << "num_joined";
+        output << "edge density";
         for (int l = 20; l <= 50; l += 1)
             output << "," << double(l) / 100;
         output << endl;
