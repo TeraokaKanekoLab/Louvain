@@ -138,10 +138,13 @@ void loop()
         const char* c = statement.c_str();
         system(c);
         cout << "sparse density: " << density1 << endl;
-        cout << "num_joined,0.20,0.21,0.22,0.23,0.24,0.25,0.26,0.27,0.28,0.29" << endl;
+        cout << "num_joined";
+        for (int l = 20; l <= 50; l += 1)
+            cout << "," << double(l) / 100;
+        cout << endl;
         for (int i : num_joined_s) {
             cout << i;
-            for (int l = 20; l < 50; l += 1) {
+            for (int l = 20; l <= 50; l += 1) {
                 double density2 = (double)l / 100;
                 statement = "python3 src/sbm2.py " + to_string(density2);
                 c = statement.c_str();
