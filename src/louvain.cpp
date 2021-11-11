@@ -131,19 +131,20 @@ void loop()
 {
     string path = "graph/merged.gr";
     vector<int> num_joined_s = vector<int> { 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 };
+    ofstream output("output/result.csv");
 
     for (int k = 30; k < 45; k += 5) {
         double density1 = (double)k / 100;
         string statement = "python3 src/sbm1.py " + to_string(density1);
         const char* c = statement.c_str();
         system(c);
-        cout << "sparse density: " << density1 << endl;
-        cout << "num_joined";
+        output << "sparse density: " << density1 << endl;
+        output << "num_joined";
         for (int l = 20; l <= 50; l += 1)
-            cout << "," << double(l) / 100;
-        cout << endl;
+            output << "," << double(l) / 100;
+        output << endl;
         for (int i : num_joined_s) {
-            cout << i;
+            output << i;
             for (int l = 20; l <= 50; l += 1) {
                 double density2 = (double)l / 100;
                 statement = "python3 src/sbm2.py " + to_string(density2);
@@ -152,7 +153,7 @@ void loop()
                 int sum1 = 0;
                 int sum2 = 0;
                 int cnt = 0;
-                for (int j = 0; j < 10; ++j) {
+                for (int j = 0; j < 100; ++j) {
                     statement = "python3 src/merge.py graph/sbm1.gr graph/sbm2.gr " + to_string(i);
                     c = statement.c_str();
                     system(c);
@@ -170,11 +171,11 @@ void loop()
                     break;
                 }
                 int total = cnt * i;
-                // cout << "joined: " << i << ", count: " << cnt << ", total: " << total << ", count1: " << sum1 << " (" << (double)sum1 / total << "), count4: " << sum2 << " (" << (double)sum2 / total << ")" << endl;
-                // cout << i << "," << cnt << "," << total << "," << sum1 << "," << (double)sum1 / total << "," << sum2 << "," << (double)sum2 / total << endl;
-                cout << "," << (double)sum2 / total;
+                // output << "joined: " << i << ", count: " << cnt << ", total: " << total << ", count1: " << sum1 << " (" << (double)sum1 / total << "), count4: " << sum2 << " (" << (double)sum2 / total << ")" << endl;
+                // output << i << "," << cnt << "," << total << "," << sum1 << "," << (double)sum1 / total << "," << sum2 << "," << (double)sum2 / total << endl;
+                output << "," << (double)sum2 / total;
             }
-            cout << endl;
+            output << endl;
         }
     }
 }
