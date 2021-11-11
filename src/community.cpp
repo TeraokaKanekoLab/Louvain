@@ -47,11 +47,9 @@ double Community::modularity()
     double q = 0.;
     double m2 = (double)g.total_weight;
 
-    for (int i = 0; i < size; ++i) {
+    for (int i = 0; i < size; ++i)
         if (tot[i] > 0)
             q += (double)in[i] / m2 - (double(tot[i] / m2) * ((double)tot[i] / m2));
-    }
-
     return q;
 }
 
@@ -249,7 +247,7 @@ double Community::one_level()
         }
 
         new_mod = modularity();
-        cerr << "pass number " << num_pass_done << ": " << cur_mod << " ---> " << new_mod << endl;
+        // cerr << "pass number " << num_pass_done << ": " << cur_mod << " ---> " << new_mod << endl;
     }
 
     return new_mod;
