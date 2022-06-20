@@ -1,6 +1,6 @@
 #include "community.hpp"
 
-Community::Community(string filename, int type, double minm)
+Community::Community(string filename, int type, double minm, double rsl)
 {
     g = Graph(filename, type);
     size = g.num_nodes;
@@ -14,9 +14,10 @@ Community::Community(string filename, int type, double minm)
         tot[i] = g.weighted_degree(i);
     }
     min_modularity = minm;
+    resolution = rsl;
 }
 
-Community::Community(Graph gc, double minm)
+Community::Community(Graph gc, double minm, double rsl)
 {
     g = gc;
     size = g.num_nodes;
@@ -31,6 +32,7 @@ Community::Community(Graph gc, double minm)
         tot[i] = g.weighted_degree(i);
     }
     min_modularity = minm;
+    resolution = rsl;
 }
 
 void Community::display()
@@ -49,7 +51,7 @@ double Community::modularity()
 
     for (int i = 0; i < size; ++i) {
         if (tot[i] > 0)
-            q += (double)in[i] / m2 - (double(tot[i] / m2) * ((double)tot[i] / m2));
+            q += (double)in[i] / m2 - resolution * (double(tot[i] / m2) * ((double)tot[i] / m2));
     }
 
     return q;
@@ -232,8 +234,8 @@ double Community::one_level()
             // compute the nearest community for node
             // default choice for future insertion is the former community
             int best_community = community;
-            int best_num_links = 0; //nbr_communities.find(community)->second;
-            double best_increase = 0.; //modularity_gain(node, best_community, best_num_links);
+            int best_num_links = 0; // nbr_communities.find(community)->second;
+            double best_increase = 0.; // modularity_gain(node, best_community, best_num_links);
             for (auto c : nbr_communities) {
                 double increase = modularity_gain(node, c.first, c.second);
                 if (increase > best_increase) {

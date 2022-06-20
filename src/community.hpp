@@ -18,11 +18,14 @@ public:
     // if 0. even a minor increase is enough to go for one more pass
     double min_modularity;
 
+    // resolution
+    double resolution;
+
     // constructors
     // reads graph from file using graph constructor
-    Community(string filename, int type, double min_modularity);
+    Community(string filename, int type, double min_modularity, double rsl = 1);
     // copy graph
-    Community(Graph g, double min_modularity);
+    Community(Graph g, double min_modularity, double rsl = 1);
 
     // display the community of each node
     void display();
@@ -93,5 +96,5 @@ inline double Community::modularity_gain(int node, int comm, int dnodecomm)
     double m2 = (double)g.total_weight;
     double dnc = (double)dnodecomm;
 
-    return (dnc - totc * degc / m2);
+    return (dnc - resolution * totc * degc / m2);
 }
