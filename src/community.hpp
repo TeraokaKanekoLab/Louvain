@@ -1,6 +1,7 @@
 #include "graph.cpp"
 
-class Community {
+class Community
+{
 public:
     Graph g;
 

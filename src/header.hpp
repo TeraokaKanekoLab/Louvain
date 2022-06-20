@@ -3,6 +3,7 @@
 #include <chrono>
 #include <climits>
 #include <deque>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -26,7 +27,8 @@ using namespace std;
 void print_vector(vector<int> nums)
 {
     cout << "[" << nums[0];
-    for (int i = 1; i < nums.size(); ++i) {
+    for (int i = 1; i < nums.size(); ++i)
+    {
         cout << ", " << nums[i];
     }
     cout << "]" << endl;
