@@ -1,4 +1,5 @@
 #include "community.cpp"
+#include <filesystem>
 
 #define PRECISION 0.000001
 #define DISPLAY_LEVEL -2
@@ -27,6 +28,10 @@ int main(int argc, char** argv)
     time(&time_begin);
     display_time("start");
 
+    if (argc < 2) {
+        cerr << "usage: " << argv[0] << " <graph file, e.g. graph/simple_graph.gr>" << endl;
+        return 1;
+    }
     string filepath = argv[1];
 
     Community c(filepath, UNWEIGHTED, PRECISION);
@@ -89,10 +94,19 @@ int main(int argc, char** argv)
     }
     time(&time_end);
 
-    string output_path = "community/" + filepath.substr(6);
-    output_path.replace(output_path.end() - 2, output_path.end(), "cm");
+    // community/<graph file name without extension>.cm
+    string name = filepath.substr(filepath.find_last_of('/') + 1);
+    size_t dot = name.find_last_of('.');
+    if (dot != string::npos)
+        name.erase(dot);
+    filesystem::create_directories("community");
+    string output_path = "community/" + name + ".cm";
     cout << output_path << endl;
     ofstream output(output_path);
+    if (!output) {
+        cerr << "cannot open " << output_path << " for writing" << endl;
+        return 1;
+    }
 
     for (auto [original, community] : original_id_to_community) {
         output << original << " " << community << endl;

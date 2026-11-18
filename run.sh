@@ -20,4 +20,8 @@ case $1 in
 "old")
     old $2 $3
     ;;
+*)
+    echo "usage: sh run.sh {all|old} <graph file>" >&2
+    exit 1
+    ;;
 esac
